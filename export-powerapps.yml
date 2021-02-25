@@ -52,17 +52,14 @@ stages:
       - task: CmdLine@2
         displayName: Commit Solution
         inputs:
-          script: >-
+          script: |
             echo commit all changes
-            
             git config user.email "powerapps@microsoft.com"
             git config user.name "Automatic Build"
             git checkout main
             git add --all
             git commit -m "export solution"
-
             echo push code to new repo
-
             git -c http.extraheader="AUTHORIZATION: Bearer $(System.AccessToken)" push origin main
       - task: PowerPlatformExportSolution@0
         displayName: Power Platform Export Managed Solution
