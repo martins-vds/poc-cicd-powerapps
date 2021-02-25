@@ -1,1 +1,1 @@
-# poc-template
+# CI/CD for Canvas Apps
