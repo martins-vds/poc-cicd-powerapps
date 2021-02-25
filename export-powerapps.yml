@@ -1,6 +1,13 @@
 name: CI/CD for Canvas Apps
 trigger: none
 
+resources:
+  repositories:
+    - repository: poc_alm_powerapps
+      type: git
+      name: My Work/poc-alm-powerapps
+      ref: refs/heads/main
+
 stages:
   - stage: export_solution
     variables:
@@ -12,7 +19,7 @@ stages:
       pool:
         vmImage: vs2017-win2016
       steps:
-      - checkout: self
+      - checkout: poc_alm_powerapps
         persistCredentials: True
       - task: PowerPlatformToolInstaller@0
         displayName: 'Power Platform Tool Installer '
