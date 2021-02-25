@@ -2,7 +2,7 @@ name: CI/CD for Canvas Apps
 trigger: none
 
 stages:
-  - stage: export-solution
+  - stage: export_solution
     variables:
       SolutionName: "ALMDemo"
       SolutionOutput: "ALMDemo.zip"
