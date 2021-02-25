@@ -4,9 +4,9 @@ trigger: none
 stages:
   - stage: export_solution
     variables:
-      SolutionName: "ALMDemo"
-      SolutionOutput: "ALMDemo.zip"
-      PowerPlatformSPN: "fe8a6304-e628-4391-944c-1a7bab2e1ce2"
+      SolutionName: 'ALMDemo'
+      SolutionOutput: 'ALMDemo.zip'
+      PowerPlatformSPN: 'CS Apps Dev'
     jobs:
     - job: export_solution
       displayName: Export Solution
@@ -20,20 +20,21 @@ stages:
       - task: PowerPlatformWhoAmi@0
         displayName: 'Power Platform WhoAmI '
         inputs:
-          authenticationType: PowerPlatformSPN
-          PowerPlatformSPN: $(PowerPlatformSPN)
+          authenticationType: 'PowerPlatformSPN'
+          PowerPlatformSPN: '$(PowerPlatformSPN)'
       - task: PowerPlatformExportSolution@0
         displayName: 'Power Platform Export Unmanaged Solution '
         inputs:
-          authenticationType: PowerPlatformSPN
-          PowerPlatformSPN: $(PowerPlatformSPN)
-          SolutionName: $(SolutionName)
-          SolutionOutputFile: $(Build.ArtifactStagingDirectory)/$(SolutionName).zip
-          MaxAsyncWaitTime: 240
+          authenticationType: 'PowerPlatformSPN'
+          PowerPlatformSPN: '$(PowerPlatformSPN)'
+          SolutionName: '$(SolutionName)'
+          SolutionOutputFile: '$(Build.ArtifactStagingDirectory)/$(SolutionName).zip'
+          AsyncOperation: true
+          MaxAsyncWaitTime: '240'
       - task: PowerPlatformChecker@0
         displayName: 'Power Platform Checker '
         inputs:
-          PowerPlatformSPN: $(PowerPlatformSPN)
+          PowerPlatformSPN: '$(PowerPlatformSPN)'
           FilesToAnalyze: $(Build.ArtifactStagingDirectory)/$(SolutionName).zip
           RuleSet: 0ad12346-e108-40b8-a956-9a8f95ea18c9
           ArtifactDestinationName: AppsCheckerAnalysisLogs
@@ -61,7 +62,7 @@ stages:
         displayName: Power Platform Export Managed Solution
         inputs:
           authenticationType: PowerPlatformSPN
-          PowerPlatformSPN: $(PowerPlatformSPN)
+          PowerPlatformSPN: '$(PowerPlatformSPN)'
           SolutionName: $(SolutionName)
           SolutionOutputFile: $(Build.ArtifactStagingDirectory)/$(SolutionName)_managed.zip
           Managed: true
