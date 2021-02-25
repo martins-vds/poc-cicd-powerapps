@@ -9,7 +9,7 @@ resources:
     name: martins-vds/PowerApps-Language-Tooling
     type: github
     ref: refs/tags/0.1.1-preview
-    endpoint: martins-vds
+    endpoint: github.martins-vds
 jobs:
 - job: package-tooling
   displayName: Package PA Language Tooling
