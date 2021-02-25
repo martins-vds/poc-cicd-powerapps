@@ -1,5 +1,7 @@
 name: Package PowerApps Language Tooling
 
+trigger: none
+
 variables:
   Configuration: "Release"
 
