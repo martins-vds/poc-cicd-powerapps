@@ -1,5 +1,7 @@
-# Variable 'Configuration' was defined in the Variables tab
 name: Package PowerApps Language Tooling
+
+variables:
+  Configuration: "Release"
 
 resources:
   repositories:
