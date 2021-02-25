@@ -6,7 +6,6 @@ stages:
     variables:
       SolutionName: 'ALMDemo'
       SolutionOutput: 'ALMDemo.zip'
-      PowerPlatformSPN: 'CS Apps Dev'
     jobs:
     - job: export_solution
       displayName: Export Solution
@@ -21,12 +20,12 @@ stages:
         displayName: 'Power Platform WhoAmI '
         inputs:
           authenticationType: 'PowerPlatformSPN'
-          PowerPlatformSPN: '$(PowerPlatformSPN)'
+          PowerPlatformSPN: 'CS Apps Dev'
       - task: PowerPlatformExportSolution@0
         displayName: 'Power Platform Export Unmanaged Solution '
         inputs:
           authenticationType: 'PowerPlatformSPN'
-          PowerPlatformSPN: '$(PowerPlatformSPN)'
+          PowerPlatformSPN: 'CS Apps Dev'
           SolutionName: '$(SolutionName)'
           SolutionOutputFile: '$(Build.ArtifactStagingDirectory)/$(SolutionName).zip'
           AsyncOperation: true
@@ -34,10 +33,10 @@ stages:
       - task: PowerPlatformChecker@0
         displayName: 'Power Platform Checker '
         inputs:
-          PowerPlatformSPN: '$(PowerPlatformSPN)'
-          FilesToAnalyze: $(Build.ArtifactStagingDirectory)/$(SolutionName).zip
-          RuleSet: 0ad12346-e108-40b8-a956-9a8f95ea18c9
-          ArtifactDestinationName: AppsCheckerAnalysisLogs
+          PowerPlatformSPN: 'CS Apps Dev'
+          FilesToAnalyze: '$(Build.ArtifactStagingDirectory)/$(SolutionName).zip'
+          RuleSet: '0ad12346-e108-40b8-a956-9a8f95ea18c9'
+          ArtifactDestinationName: 'AppsCheckerAnalysisLogs'
       - task: PowerPlatformUnpackSolution@0
         displayName: 'Power Platform Unpack Solution '
         inputs:
@@ -61,11 +60,12 @@ stages:
       - task: PowerPlatformExportSolution@0
         displayName: Power Platform Export Managed Solution
         inputs:
-          authenticationType: PowerPlatformSPN
-          PowerPlatformSPN: '$(PowerPlatformSPN)'
-          SolutionName: $(SolutionName)
-          SolutionOutputFile: $(Build.ArtifactStagingDirectory)/$(SolutionName)_managed.zip
+          authenticationType: 'PowerPlatformSPN'
+          PowerPlatformSPN: 'CS Apps Dev'
+          SolutionName: '$(SolutionName)'
+          SolutionOutputFile: '$(Build.ArtifactStagingDirectory)/$(SolutionName)_managed.zip'
           Managed: true
-          MaxAsyncWaitTime: 240
+          AsyncOperation: true
+          MaxAsyncWaitTime: '240'
       - task: PublishBuildArtifacts@1
         displayName: 'Publish Artifact: drop'
