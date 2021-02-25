@@ -10,6 +10,7 @@ resources:
 
 stages:
   - stage: export_solution
+    displayName: Export Solution
     variables:
       SolutionName: 'ALMDemo'
       SolutionOutput: 'ALMDemo.zip'
