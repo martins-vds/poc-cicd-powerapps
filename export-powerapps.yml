@@ -73,3 +73,113 @@ stages:
           MaxAsyncWaitTime: '240'
       - task: PublishBuildArtifacts@1
         displayName: 'Publish Artifact: drop'
+  - stage: deploy_solution
+    displayName: Deploy Solution
+    dependsOn: export_solution
+    jobs:
+      - deployment: deploy_prod
+        displayName: Deploy to Prod
+        pool:
+          vmImage: vs2017-win2016
+        variables:
+          0.DatasetName: $(SharepointURL)
+          SolutionName: 'ALMDemo'
+          TableName: '$(SharepointTableID)'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: UniversalPackages@0
+                  inputs:
+                    command: 'download'
+                    downloadDirectory: '$(System.DefaultWorkingDirectory)/_powerapps-language-tooling'
+                    feedsToUse: 'internal'
+                    vstsFeed: 'bc4526fc-921b-4180-b4d7-4c1eb21fcdee/76845d6b-95ee-4c43-99d1-df8d528da657'
+                    vstsFeedPackage: '388360c4-c4dd-4c2c-8fe2-bb906351865c'
+                    vstsPackageVersion: '0.0.3'
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'current'
+                    downloadType: 'single'
+                    artifactName: 'drop'
+                    downloadPath: '$(System.DefaultWorkingDirectory)'
+                - task: PowerPlatformToolInstaller@0
+                  inputs:
+                    DefaultVersion: true
+                - task: PowerPlatformUnpackSolution@0
+                  inputs:
+                    SolutionInputFile: '$(System.DefaultWorkingDirectory)/drop/$(SolutionName)_managed.zip'
+                    SolutionTargetFolder: '$(Agent.TempDirectory)/solutions/$(SolutionName)'
+                    SolutionType: 'Managed'
+                - task: CmdLine@2
+                  displayName: Unpack MSAPP
+                  inputs:
+                    script: 'PASopa.exe -unpack $(Agent.TempDirectory)\solutions\$(SolutionName)\CanvasApps\apps_almdemo_9e98b_DocumentUri.msapp $(Agent.TempDirectory)\solutions\src\$(SolutionName)'
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/_powerapps-language-tooling'
+                - task: FileTransform@1
+                  displayName: Update Data Sources
+                  inputs:
+                    folderPath: '$(Agent.TempDirectory)\solutions\src\$(SolutionName)'
+                    fileType: 'json'
+                    targetFiles: '**/DataSources/Work*progress*tracker.json'
+                - task: PowerShell@2
+                  displayName: Update Connections
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      $connectionsFile = "$(Agent.TempDirectory)\solutions\src\$(SolutionName)\Connections\Connections.json"
+                      $connections = Get-Content -Path $connectionsFile | ConvertFrom-Json
+                      $connections.'0bb507df-2b7f-4f46-ba1d-95edf64001b9'.datasets = @{
+                            '$(SharepointURL)'= @{
+                              dataSources = @{
+                                'Work progress tracker' = @{
+                                  tableName = "$(SharepointTableID)"
+                                }
+                              }
+                            }
+                          }
+                      $connections | ConvertTo-Json -Depth 10 | Set-Content $connectionsFile
+                - task: FileTransform@1
+                  displayName: Update Table Definitions
+                  inputs:
+                    folderPath: '$(Agent.TempDirectory)\solutions\src\$(SolutionName)'
+                    fileType: 'json'
+                    targetFiles: '**/pkgs/TableDefinitions/Work*progress*tracker.json'
+                - task: PowerShell@2
+                  displayName: Update Table Metadata Definitions
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      $definitionsFile = "$(Agent.TempDirectory)\solutions\src\$(SolutionName)\pkgs\TableDefinitions\Work progress tracker.json"
+                      $definitions = Get-Content -Path $definitionsFile | ConvertFrom-Json
+                      
+                      $metadata = $definitions.DataEntityMetadataJson.'$(DevSharepointTableID)'
+                      $metadata = $metadata -replace "$(DevSharepointTableID)", "$(SharepointTableID)"
+                      $metadata = $metadata -replace "$(DevSharepointURL)", "$(SharepointURL)"
+                      
+                      $definitions.DataEntityMetadataJson = @{
+                        '$(SharepointTableID)' = $metadata
+                      }
+                      
+                      $definitions | ConvertTo-Json -Depth 10 | Set-Content $definitionsFile
+                - task: CmdLine@2
+                  displayName: Pack MSAPP
+                  inputs:
+                    script: 'PASopa.exe -pack $(Agent.TempDirectory)\solutions\$(SolutionName)\CanvasApps\apps_almdemo_9e98b_DocumentUri.msapp $(Agent.TempDirectory)\solutions\src\$(SolutionName)'
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/_powerapps-language-tooling'
+                - task: PowerPlatformPackSolution@0
+                  displayName: Power Platform Pack Solution 
+                  inputs:
+                    SolutionSourceFolder: '$(Agent.TempDirectory)/solutions/$(SolutionName)'
+                    SolutionOutputFile: '$(Agent.TempDirectory)/solutions/$(SolutionName)_managed.zip'
+                    SolutionType: 'Managed'
+                - task: PowerPlatformImportSolution@0
+                  displayName: Power Platform Import Solution 
+                  inputs:
+                    authenticationType: 'PowerPlatformSPN'
+                    PowerPlatformSPN: 'CS Apps Prod'
+                    SolutionInputFile: '$(Agent.TempDirectory)/solutions/$(SolutionName)_managed.zip'
+                    AsyncOperation: true
+                    MaxAsyncWaitTime: '240'
+                    OverwriteUnmanagedCustomizations: true
+                    ConvertToManaged: true
