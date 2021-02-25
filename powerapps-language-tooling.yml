@@ -11,7 +11,7 @@ resources:
     ref: refs/tags/0.1.1-preview
     endpoint: github.martins-vds
 jobs:
-- job: package-tooling
+- job: package_tooling
   displayName: Package PA Language Tooling
   pool:
     vmImage: windows-2019
@@ -30,7 +30,7 @@ jobs:
       OverWrite: true
       flattenFolders: true
   - task: UniversalPackages@0
-    displayName: Publish Universal publish
+    displayName: Publish Package
     inputs:
       command: publish
       feedListPublish: bc4526fc-921b-4180-b4d7-4c1eb21fcdee/76845d6b-95ee-4c43-99d1-df8d528da657
