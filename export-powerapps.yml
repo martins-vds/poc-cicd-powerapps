@@ -79,6 +79,7 @@ stages:
     jobs:
       - deployment: deploy_prod
         displayName: Deploy to Prod
+        environment: PowerApps_Prod
         pool:
           vmImage: vs2017-win2016
         variables:
