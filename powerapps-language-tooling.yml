@@ -1,0 +1,35 @@
+# Variable 'Configuration' was defined in the Variables tab
+name: Package PowerApps Language Tooling
+
+resources:
+  repositories:
+  - repository: github
+    name: martins-vds/PowerApps-Language-Tooling
+    type: github
+    ref: refs/tags/0.1.1-preview
+    endpoint: martins-vds
+jobs:
+- job: package-tooling
+  displayName: Package PA Language Tooling
+  pool:
+    vmImage: windows-2019
+  steps:
+  - checkout: github
+  - task: CmdLine@2
+    displayName: Build
+    inputs:
+      script: build.cmd -c $(Configuration)
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    inputs:
+      Contents: '**\bin\$(Configuration)\PASopa\**'
+      TargetFolder: $(build.artifactstagingdirectory)
+      CleanTargetFolder: true
+      OverWrite: true
+      flattenFolders: true
+  - task: UniversalPackages@0
+    displayName: Publish Universal publish
+    inputs:
+      command: publish
+      feedListPublish: bc4526fc-921b-4180-b4d7-4c1eb21fcdee/76845d6b-95ee-4c43-99d1-df8d528da657
+      packageListPublish: ' powerapps-language-tooling'
