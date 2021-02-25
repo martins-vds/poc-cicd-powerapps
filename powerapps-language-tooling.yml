@@ -18,11 +18,11 @@ jobs:
   steps:
   - checkout: github
   - task: CmdLine@2
-    displayName: Build
+    displayName: Build Solution
     inputs:
       script: build.cmd -c $(Configuration)
   - task: CopyFiles@2
-    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    displayName: 'Copy Files Staging Directory'
     inputs:
       Contents: '**\bin\$(Configuration)\PASopa\**'
       TargetFolder: $(build.artifactstagingdirectory)
