@@ -1,4 +1,4 @@
-# CI/CD for Canvas Apps
+# CI/CD for Canvas Apps in Power Platform
 
 ## Reference
 
